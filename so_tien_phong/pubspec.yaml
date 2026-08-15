@@ -14,9 +14,10 @@ dependencies:
 
   cupertino_icons: ^1.0.8
   sqflite: ^2.3.3
-  path: ^1.9.0
+  # path va intl bi Flutter SDK ghim phien ban -> de "any" cho khop moi ban Flutter
+  path: any
   path_provider: ^2.1.4
-  intl: ^0.19.0
+  intl: any
   provider: ^6.1.2
   image_picker: ^1.1.2
   shared_preferences: ^2.3.2
@@ -27,7 +28,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: '>=4.0.0 <7.0.0'
 
 flutter:
   uses-material-design: true
