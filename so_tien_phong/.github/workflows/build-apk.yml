@@ -1,0 +1,65 @@
+name: Build APK
+
+# Chạy tự động mỗi lần đẩy code lên, và chạy tay được từ tab Actions.
+on:
+  workflow_dispatch:
+    inputs:
+      flutter_version:
+        description: 'Phiên bản Flutter (để trống dùng 3.32.x)'
+        required: false
+        default: '3.32.x'
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Lấy source code
+        uses: actions/checkout@v4
+
+      - name: Cài Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Cài Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ github.event.inputs.flutter_version || '3.32.x' }}
+          cache: true
+
+      - name: Xem phiên bản
+        run: flutter --version
+
+      - name: Tạo phần Android và bật desugaring
+        run: python3 tool/prepare_android.py
+
+      - name: Tải thư viện
+        run: flutter pub get
+
+      - name: Kiểm tra code (không chặn build)
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+        continue-on-error: true
+
+      - name: Build APK gộp
+        run: flutter build apk --release
+
+      - name: Build APK tách theo CPU
+        run: flutter build apk --release --split-per-abi
+
+      - name: Liệt kê file đã build
+        run: ls -lh build/app/outputs/flutter-apk/
+
+      - name: Đóng gói APK để tải về
+        uses: actions/upload-artifact@v4
+        with:
+          name: so-tien-phong-apk
+          path: build/app/outputs/flutter-apk/*.apk
+          retention-days: 30
+          if-no-files-found: error

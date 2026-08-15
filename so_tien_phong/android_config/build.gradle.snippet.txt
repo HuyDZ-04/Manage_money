@@ -1,0 +1,95 @@
+====================================================================
+CHỈNH android/app/build.gradle (hoặc build.gradle.kts)
+====================================================================
+
+Thư viện nhắc nhở (flutter_local_notifications) BẮT BUỘC phải bật
+"core library desugaring", nếu không sẽ báo lỗi khi build.
+
+--------------------------------------------------------------------
+A. Nếu file của bạn là  android/app/build.gradle  (Groovy)
+--------------------------------------------------------------------
+
+android {
+    compileSdk = 34            // hoặc flutter.compileSdkVersion
+
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    defaultConfig {
+        applicationId "com.example.so_tien_phong"
+        minSdk = 21            // tối thiểu 21
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0.0"
+    }
+
+    buildTypes {
+        release {
+            // Tạm dùng khoá debug để build thử cho nhanh.
+            // Khi phát hành thật thì tạo keystore riêng (xem README).
+            signingConfig signingConfigs.debug
+        }
+    }
+}
+
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
+}
+
+
+--------------------------------------------------------------------
+B. Nếu file của bạn là  android/app/build.gradle.kts  (Kotlin DSL,
+   Flutter 3.29 trở lên tạo file này)
+--------------------------------------------------------------------
+
+android {
+    compileSdk = 34
+
+    compileOptions {
+        isCoreLibraryDesugaringEnabled = true
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+
+    defaultConfig {
+        applicationId = "com.example.so_tien_phong"
+        minSdk = 21
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0.0"
+    }
+
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.getByName("debug")
+        }
+    }
+}
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+}
+
+
+--------------------------------------------------------------------
+GHI CHÚ
+--------------------------------------------------------------------
+* Nếu build báo lỗi kiểu:
+      "Dependency ':flutter_local_notifications' requires
+       core library desugaring to be enabled"
+  → nghĩa là bạn chưa thêm 2 phần compileOptions + dependencies ở trên.
+
+* Nếu báo lỗi desugar_jdk_libs phiên bản thấp, đổi 2.1.4 thành 2.1.5.
+
+* Đổi tên app hiển thị: sửa android:label trong AndroidManifest.xml.
